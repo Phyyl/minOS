@@ -1,9 +1,15 @@
-#include <stdbool.h>
-#include <stddef.h>
 #include <stdint.h>
+#include "mem.h"
+#include "string.h"
+#include "math.h"
 
-extern int __start;
-extern int __end;
+static const size_t VGA_WIDTH = 80;
+static const size_t VGA_HEIGHT = 25;
+
+size_t terminal_row;
+size_t terminal_column;
+uint8_t terminal_color;
+uint16_t* terminal_buffer;
 
 enum vga_color
 {
@@ -34,56 +40,6 @@ static inline uint16_t vga_entry(unsigned char uc, uint8_t color)
 {
 	return (uint16_t) uc | (uint16_t) color << 8;
 }
-
-size_t strlen(const char* str)
-{
-	size_t len = 0;
-
-	while (str[len])
-	{
-		len++;
-	}
-
-	return len;
-}
-
-void memcpy(const void* dst, const void* src, size_t num)
-{
-	char* cdst = (char*)dst;
-	char* csrc = (char*)src;
-
-	for (size_t i = 0; i < num; i++)
-	{
-		cdst[i] = csrc[i];
-	}
-}
-
-void memset(const void* ptr, int value, size_t num)
-{
-	unsigned char* cptr = (unsigned char*)ptr;
-
-	while (num--)
-	{
-		cptr[num] = (unsigned char)value;
-	}
-}
-
-int pow(int x, int n)
-{
-	if (n <= 0) return 1;
-
-	while (--n) x *= x;
-
-	return x;
-}
-
-static const size_t VGA_WIDTH = 80;
-static const size_t VGA_HEIGHT = 25;
-
-size_t terminal_row;
-size_t terminal_column;
-uint8_t terminal_color;
-uint16_t* terminal_buffer;
 
 void terminal_initialize(void)
 {
@@ -182,20 +138,4 @@ void terminal_writeint32(int32_t val)
 	{
 		terminal_putchar(48 + (val / pow(10, i)) % 10);
 	}
-}
-
-void kernel_main(void)
-{
-	terminal_initialize();
-
-	terminal_writeint32(0);
-	terminal_writestring("\r");
-	terminal_writeint32(1);
-	terminal_writestring("\r");
-	terminal_writeint32(-9);
-	terminal_writestring("\r");
-	terminal_writeint32(10);
-	terminal_writestring("\r");
-	terminal_writeint32(-100);
-	terminal_writestring("\r");
 }
