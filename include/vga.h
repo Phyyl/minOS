@@ -77,7 +77,7 @@ void terminal_scroll()
 
 void terminal_putchar(char c)
 {
-	if (c == '\r')
+	if (c == '\n')
 	{
 		terminal_column = VGA_WIDTH - 1;
 	}

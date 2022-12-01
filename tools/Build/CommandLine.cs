@@ -9,24 +9,38 @@ public static class CommandLine
     {
         string argumentString = string.Join(" ", arguments);
 
-        Process? process = Process.Start(new ProcessStartInfo()
+        Process process = new()
         {
-            UseShellExecute=false,
-            CreateNoWindow = true,
-            FileName = command,
-            Arguments = argumentString,
-            RedirectStandardError = true,
-            RedirectStandardOutput = true
-        });
+            StartInfo = new ProcessStartInfo()
+            {
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                FileName = command,
+                Arguments = argumentString,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            }
+        };
 
-        if (process is null)
+
+        process.OutputDataReceived += (_, e) => WriteLine(e.Data);
+        process.ErrorDataReceived += (_, e) => WriteLine($"Error: {e.Data}");
+        process.EnableRaisingEvents = true;
+
+        if (!process.Start())
         {
-            Console.WriteLine($"Failed to exeucte command: {command} {argumentString}");
+            WriteLine($"Failed to start process: {command} {argumentString}");
             return false;
         }
 
         process.WaitForExit();
+        
+        if (process.ExitCode == 0)
+        {
+            return true;
+        }
 
-        return process.ExitCode == 0;
+        WriteLine($"Failed to execute: {command} {argumentString}");
+        return false;
     }
 }

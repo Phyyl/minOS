@@ -50,4 +50,6 @@ static void LinkKernel()
         "obj/boot.o",
         "obj/kernel.o"
     };
+    
+    Execute("i686-elf-gcc", options.ToArray());
 }
